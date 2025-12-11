@@ -1,1 +1,49 @@
-<img src="./可以回家啦.jpeg" alt="">
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>可以回家啦</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            background-color: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        img {
+            width: 100vw;
+            height: 100vh;
+            object-fit: contain;
+            user-select: none;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            animation: fadeInZoom 1.5s ease-out forwards;
+        }
+
+        @keyframes fadeInZoom {
+            0% {
+                opacity: 0;
+                transform: scale(1.1);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+    </style>
+</head>
+<body>
+    <img src="./gohome.webp" alt="可以回家啦">
+</body>
+</html>

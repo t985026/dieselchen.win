@@ -19,6 +19,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
+            position: relative;
         }
 
         img {
@@ -31,6 +32,90 @@
             animation: fadeInZoom 1.5s ease-out forwards;
         }
 
+        /* 倒數計時器 */
+        #countdown {
+            position: fixed;
+            top: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.8);
+            color: #fff;
+            padding: 20px 40px;
+            border-radius: 15px;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        #countdown h2 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        #timer {
+            font-size: 2.5em;
+            font-weight: bold;
+            letter-spacing: 2px;
+            color: #00ff00;
+        }
+
+        #timer.finished {
+            color: #ff69b4;
+            animation: pulse 1s infinite;
+        }
+
+        /* 語錄顯示 */
+        #quote {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-family: 'Arial', sans-serif;
+            font-size: 1.1em;
+            max-width: 80%;
+            text-align: center;
+            z-index: 100;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+            animation: slideUp 0.5s ease-out;
+        }
+
+        /* 五彩碎紙 */
+        .confetti {
+            position: fixed;
+            width: 10px;
+            height: 10px;
+            z-index: 50;
+            animation: confettiFall 3s linear forwards;
+        }
+
+        /* 氣球 */
+        .balloon {
+            position: fixed;
+            width: 50px;
+            height: 60px;
+            border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+            z-index: 50;
+            animation: balloonFloat 5s ease-in forwards;
+        }
+
+        .balloon::after {
+            content: '';
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 2px;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.5);
+        }
+
         @keyframes fadeInZoom {
             0% {
                 opacity: 0;
@@ -41,9 +126,180 @@
                 transform: scale(1);
             }
         }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
+        }
+
+        @keyframes confettiFall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes balloonFloat {
+            0% {
+                transform: translateY(0) translateX(0);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) translateX(var(--float-x));
+                opacity: 0;
+            }
+        }
     </style>
 </head>
 <body>
     <img src="./gohome.webp" alt="可以回家啦">
+
+    <!-- 倒數計時器 -->
+    <div id="countdown">
+        <h2>距離下班還有</h2>
+        <div id="timer">00:00:00</div>
+    </div>
+
+    <!-- 隨機語錄 -->
+    <div id="quote"></div>
+
+    <script>
+        // 回家相關語錄
+        const quotes = [
+            '終於可以回家了！',
+            '回家吃飯囉～',
+            '下班萬歲！',
+            '自由的感覺真好！',
+            '今天辛苦了！',
+            '回家的路上最美麗',
+            '終於解放了！',
+            '家，我回來了！',
+            '打卡下班，開心回家',
+            '又是充實的一天',
+            '期待已久的下班時刻',
+            '準備享受自己的時間了'
+        ];
+
+        // 顯示隨機語錄
+        function showRandomQuote() {
+            const quoteElement = document.getElementById('quote');
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            quoteElement.textContent = randomQuote;
+        }
+
+        // 每5秒更換一次語錄
+        showRandomQuote();
+        setInterval(showRandomQuote, 5000);
+
+        // 倒數計時器
+        function updateCountdown() {
+            const now = new Date();
+            const target = new Date();
+            target.setHours(17, 30, 0, 0);
+
+            // 如果已經過了今天的下班時間，設定為明天
+            if (now > target) {
+                target.setDate(target.getDate() + 1);
+            }
+
+            const diff = target - now;
+            const timerElement = document.getElementById('timer');
+            const countdownElement = document.getElementById('countdown');
+
+            if (diff <= 0) {
+                timerElement.textContent = '可以回家啦！';
+                timerElement.classList.add('finished');
+                countdownElement.querySelector('h2').textContent = '🎉 下班時間到 🎉';
+
+                // 觸發慶祝動畫（只觸發一次）
+                if (!window.celebrationTriggered) {
+                    window.celebrationTriggered = true;
+                    triggerCelebration();
+                }
+            } else {
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                timerElement.textContent =
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+            }
+        }
+
+        // 創建五彩碎紙
+        function createConfetti() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#ffd93d', '#ff69b4', '#95e1d3'];
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.top = '-10px';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDelay = Math.random() * 0.5 + 's';
+            document.body.appendChild(confetti);
+
+            setTimeout(() => confetti.remove(), 3000);
+        }
+
+        // 創建氣球
+        function createBalloon() {
+            const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#ffd93d', '#ff69b4', '#95e1d3'];
+            const balloon = document.createElement('div');
+            balloon.className = 'balloon';
+            balloon.style.left = Math.random() * 90 + 5 + 'vw';
+            balloon.style.top = '100vh';
+            balloon.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            balloon.style.setProperty('--float-x', (Math.random() - 0.5) * 200 + 'px');
+            balloon.style.animationDelay = Math.random() * 0.5 + 's';
+            document.body.appendChild(balloon);
+
+            setTimeout(() => balloon.remove(), 5000);
+        }
+
+        // 觸發慶祝動畫
+        function triggerCelebration() {
+            // 創建大量碎紙
+            for (let i = 0; i < 100; i++) {
+                setTimeout(() => createConfetti(), i * 50);
+            }
+
+            // 創建氣球
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => createBalloon(), i * 200);
+            }
+
+            // 持續5秒
+            const celebrationInterval = setInterval(() => {
+                createConfetti();
+                if (Math.random() > 0.7) createBalloon();
+            }, 300);
+
+            setTimeout(() => clearInterval(celebrationInterval), 5000);
+        }
+
+        // 每秒更新倒數計時
+        updateCountdown();
+        setInterval(updateCountdown, 1000);
+    </script>
 </body>
 </html>

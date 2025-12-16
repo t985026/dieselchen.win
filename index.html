@@ -32,39 +32,75 @@
             animation: fadeInZoom 1.5s ease-out forwards;
         }
 
-        /* 倒數計時器 */
+        /* 倒數計時器容器 */
         #countdown {
             position: fixed;
             top: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0, 0, 0, 0.8);
+            left: 30px;
+            background: rgba(0, 0, 0, 0.85);
             color: #fff;
-            padding: 20px 40px;
+            padding: 20px;
             border-radius: 15px;
             font-family: 'Arial', sans-serif;
-            text-align: center;
             z-index: 100;
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
         }
 
-        #countdown h2 {
-            font-size: 1.2em;
-            margin-bottom: 10px;
+        #timers-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .timer-box {
+            text-align: center;
+            padding: 15px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .timer-box h3 {
+            font-size: 1em;
+            margin-bottom: 8px;
             color: #ffd700;
         }
 
-        #timer {
-            font-size: 2.5em;
+        .timer-box .shift-time {
+            font-size: 0.85em;
+            color: #aaa;
+            margin-bottom: 5px;
+        }
+
+        .timer-box .timer {
+            font-size: 1.8em;
             font-weight: bold;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
             color: #00ff00;
         }
 
-        #timer.finished {
+        .timer-box .timer.finished {
             color: #ff69b4;
             animation: pulse 1s infinite;
+        }
+
+        /* 手機響應式設計 */
+        @media (max-width: 768px) {
+            #countdown {
+                min-width: auto;
+                width: auto;
+                max-width: 90%;
+                padding: 15px;
+            }
+
+            .timer-box {
+                padding: 12px;
+            }
+
+            .timer-box .timer {
+                font-size: 1.5em;
+            }
         }
 
         /* 語錄顯示 */
@@ -175,8 +211,28 @@
 
     <!-- 倒數計時器 -->
     <div id="countdown">
-        <h2>距離下班還有</h2>
-        <div id="timer">00:00:00</div>
+        <div id="timers-container">
+            <div class="timer-box">
+                <h3>早班</h3>
+                <div class="shift-time">16:40</div>
+                <div class="timer" id="timer-early">00:00:00</div>
+            </div>
+            <div class="timer-box">
+                <h3>正常班</h3>
+                <div class="shift-time">17:30</div>
+                <div class="timer" id="timer-normal">00:00:00</div>
+            </div>
+            <div class="timer-box">
+                <h3>晚班</h3>
+                <div class="shift-time">18:30</div>
+                <div class="timer" id="timer-late">00:00:00</div>
+            </div>
+            <div class="timer-box">
+                <h3>金控</h3>
+                <div class="shift-time">18:00</div>
+                <div class="timer" id="timer-finance">00:00:00</div>
+            </div>
+        </div>
     </div>
 
     <!-- 隨機語錄 -->
@@ -206,36 +262,36 @@
             quoteElement.textContent = randomQuote;
         }
 
-        // 每5秒更換一次語錄
+        // 頁面載入時顯示一次語錄，不再輪換
         showRandomQuote();
-        setInterval(showRandomQuote, 5000);
 
-        // 倒數計時器
-        function updateCountdown() {
+        // 定義班次時間（包含上下班時間）
+        const shifts = [
+            { id: 'timer-early', name: '早班', startHour: 8, startMinute: 0, endHour: 16, endMinute: 40 },
+            { id: 'timer-normal', name: '正常班', startHour: 8, startMinute: 50, endHour: 17, endMinute: 30 },
+            { id: 'timer-late', name: '晚班', startHour: 9, startMinute: 50, endHour: 18, endMinute: 30 },
+            { id: 'timer-finance', name: '金控', startHour: 9, startMinute: 0, endHour: 18, endMinute: 0 }
+        ];
+
+        // 更新單個計時器
+        function updateTimer(shift) {
             const now = new Date();
-            const target = new Date();
-            target.setHours(17, 30, 0, 0);
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
 
-            // 如果已經過了今天的下班時間，設定為明天
-            if (now > target) {
-                target.setDate(target.getDate() + 1);
-            }
+            // 建立今天的上班和下班時間
+            const startTime = new Date();
+            startTime.setHours(shift.startHour, shift.startMinute, 0, 0);
 
-            const diff = target - now;
-            const timerElement = document.getElementById('timer');
-            const countdownElement = document.getElementById('countdown');
+            const endTime = new Date();
+            endTime.setHours(shift.endHour, shift.endMinute, 0, 0);
 
-            if (diff <= 0) {
-                timerElement.textContent = '可以回家啦！';
-                timerElement.classList.add('finished');
-                countdownElement.querySelector('h2').textContent = '🎉 下班時間到 🎉';
+            const timerElement = document.getElementById(shift.id);
 
-                // 觸發慶祝動畫（只觸發一次）
-                if (!window.celebrationTriggered) {
-                    window.celebrationTriggered = true;
-                    triggerCelebration();
-                }
-            } else {
+            // 判斷當前時間狀態
+            if (now < startTime) {
+                // 還沒上班，倒數到下班時間
+                const diff = endTime - now;
                 const hours = Math.floor(diff / (1000 * 60 * 60));
                 const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((diff % (1000 * 60)) / 1000);
@@ -244,7 +300,37 @@
                     String(hours).padStart(2, '0') + ':' +
                     String(minutes).padStart(2, '0') + ':' +
                     String(seconds).padStart(2, '0');
+                timerElement.classList.remove('finished');
+
+            } else if (now >= startTime && now < endTime) {
+                // 已上班但還沒下班，倒數到下班時間
+                const diff = endTime - now;
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+                timerElement.textContent =
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+                timerElement.classList.remove('finished');
+
+            } else {
+                // 已經下班了，顯示「回家」
+                timerElement.textContent = '回家';
+                timerElement.classList.add('finished');
+
+                // 觸發慶祝動畫（只觸發一次）
+                if (!window.celebrationTriggered) {
+                    window.celebrationTriggered = true;
+                    triggerCelebration();
+                }
             }
+        }
+
+        // 更新所有倒數計時器
+        function updateCountdown() {
+            shifts.forEach(shift => updateTimer(shift));
         }
 
         // 創建五彩碎紙

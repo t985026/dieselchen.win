@@ -109,8 +109,6 @@
             bottom: 40px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(255, 255, 255, 0.95);
-            color: #333;
             padding: 15px 30px;
             border-radius: 10px;
             font-family: 'Arial', sans-serif;
@@ -120,6 +118,23 @@
             z-index: 100;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
             animation: slideUp 0.5s ease-out;
+            display: none; /* 預設隱藏 */
+        }
+
+        #quote.show {
+            display: block;
+        }
+
+        /* 下班語錄樣式 */
+        #quote.offwork {
+            background: rgba(255, 255, 255, 0.95);
+            color: #333;
+        }
+
+        /* 上班語錄樣式 */
+        #quote.working {
+            background: rgba(100, 100, 100, 0.9);
+            color: #fff;
         }
 
         /* 五彩碎紙 */
@@ -239,8 +254,8 @@
     <div id="quote"></div>
 
     <script>
-        // 回家相關語錄
-        const quotes = [
+        // 回家相關語錄（下班時間顯示）
+        const offworkQuotes = [
             '終於可以回家了！',
             '回家吃飯囉～',
             '下班萬歲！',
@@ -255,15 +270,29 @@
             '準備享受自己的時間了'
         ];
 
-        // 顯示隨機語錄
-        function showRandomQuote() {
+        // 上班相關語錄（上班時間顯示）
+        const workQuotes = [
+            '明明昨天還好好的啊!?',
+            '今天又是充滿挑戰的一天...',
+            '咖啡...需要更多咖啡...',
+            '為什麼周一這麼快就到了',
+            '深呼吸，你可以的！',
+            '距離下班還有好久...',
+            '又是努力搬磚的一天',
+            '加油！撐過今天就好',
+            '會議怎麼這麼多啊',
+            '想念被窩的溫暖',
+            '這個 bug 怎麼還在...',
+            '堅持住，等等就下班了'
+        ];
+
+        // 顯示隨機語錄（根據上下班狀態）
+        function showRandomQuote(isWorking) {
             const quoteElement = document.getElementById('quote');
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            const quotesArray = isWorking ? workQuotes : offworkQuotes;
+            const randomQuote = quotesArray[Math.floor(Math.random() * quotesArray.length)];
             quoteElement.textContent = randomQuote;
         }
-
-        // 頁面載入時顯示一次語錄，不再輪換
-        showRandomQuote();
 
         // 定義班次時間（包含上下班時間）
         const shifts = [
@@ -354,6 +383,7 @@
         function updateMainImage() {
             const now = new Date();
             const mainImage = document.getElementById('main-image');
+            const quoteElement = document.getElementById('quote');
 
             // 檢查是否有任何班次正在上班
             let anyoneWorking = false;
@@ -381,8 +411,16 @@
 
                 if (newState === 'working') {
                     mainImage.src = './疲憊上班族.gif';
+                    // 上班時間顯示上班語錄
+                    showRandomQuote(true);
+                    quoteElement.classList.remove('offwork');
+                    quoteElement.classList.add('working', 'show');
                 } else {
                     mainImage.src = './大家可以回家拉.gif';
+                    // 下班時間顯示下班語錄
+                    showRandomQuote(false);
+                    quoteElement.classList.remove('working');
+                    quoteElement.classList.add('offwork', 'show');
                 }
             }
         }

@@ -48,6 +48,51 @@
             min-width: 200px;
         }
 
+        /* 部落格區塊 */
+        #blog-link {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            background: rgba(0, 0, 0, 0.85);
+            color: #fff;
+            padding: 20px;
+            border-radius: 15px;
+            font-family: 'Arial', sans-serif;
+            z-index: 100;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            min-width: 200px;
+            text-align: center;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        #blog-link:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        #blog-link h3 {
+            font-size: 1.1em;
+            margin-bottom: 10px;
+            color: #ffd700;
+        }
+
+        #blog-link a {
+            display: inline-block;
+            color: #4ecdc4;
+            text-decoration: none;
+            font-size: 0.95em;
+            padding: 8px 15px;
+            background: rgba(78, 205, 196, 0.1);
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        #blog-link a:hover {
+            background: rgba(78, 205, 196, 0.2);
+            color: #45b7d1;
+        }
+
         #timers-container {
             display: flex;
             flex-direction: column;
@@ -88,6 +133,13 @@
         /* 手機響應式設計 */
         @media (max-width: 768px) {
             #countdown {
+                min-width: auto;
+                width: auto;
+                max-width: 90%;
+                padding: 15px;
+            }
+
+            #blog-link {
                 min-width: auto;
                 width: auto;
                 max-width: 90%;
@@ -243,6 +295,14 @@
                 <div class="timer" id="timer-finance">00:00:00</div>
             </div>
         </div>
+    </div>
+
+    <!-- 技術顧問部落格 -->
+    <div id="blog-link">
+        <h3>技術顧問</h3>
+        <a href="https://blog.giveanornot.com/" target="_blank" rel="noopener noreferrer">
+            前往部落格
+        </a>
     </div>
 
     <!-- 隨機語錄 -->

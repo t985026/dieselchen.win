@@ -13,7 +13,7 @@
     * **午休提醒**：每日 12:00 - 13:30 自動跳出休息提示。
     * **下班提醒**：平日 17:30 - 隔日 07:00 自動跳出下班慶祝視窗。
 4. **音效與動畫**：
-    * 下班時自動播放「叮」提示音效。
+    * 下班時自動播放「叮」提示音效 (使用 Web Audio API 合成)。
     * 下班時刻觸發五彩碎紙與氣球飄浮動畫。
 5. **人性化操作**：
     * 彈窗可手動關閉，且在同一時段內不會再次干擾。
@@ -31,16 +31,28 @@
 ### 目錄結構
 
 ```text
-d:\Project\dieselchen.win\
+dieselchen.win/
 ├── public/              # 靜態資源 (GIF 圖片)
+│   ├── 大家可以回家拉.gif
+│   └── 疲憊上班族.gif
 ├── src/
-│   ├── components/      # React 元件 (TimerBox, Popup, etc.)
-│   ├── App.jsx          # 主要應用程式邏輯 (時間判斷、狀態管理)
-│   ├── main.jsx         # 應用程式進入點
-│   └── App.css          # 全域樣式設定
-├── index.html           # 網頁進入點
-├── vite.config.js       # Vite 設定檔
-└── package.json         # 專案依賴與腳本
+│   ├── components/      # React 元件
+│   │   ├── BlogLink.jsx
+│   │   ├── DailyMotivation.jsx
+│   │   ├── MainImage.jsx
+│   │   ├── Popup.jsx
+│   │   ├── Quote.jsx
+│   │   └── TimerBox.jsx
+│   ├── data/           # 資料檔案
+│   │   └── quotes.js   # 語錄資料 (工作、下班、激勵語錄)
+│   ├── App.jsx         # 主要應用程式邏輯 (時間判斷、狀態管理)
+│   ├── App.css         # 全域樣式設定
+│   ├── index.css       # 基礎樣式
+│   ├── audioUtils.js   # 音效工具函式
+│   └── main.jsx        # 應用程式進入點
+├── index.html          # 網頁進入點
+├── vite.config.js      # Vite 設定檔
+└── package.json        # 專案依賴與腳本
 ```
 
 ## 🚀 部署方式 (Deployment)

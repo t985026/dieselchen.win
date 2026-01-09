@@ -87,12 +87,42 @@ function App() {
     const [quote, setQuote] = useState('');
     const [showRestingPopup, setShowRestingPopup] = useState(false);
     const [showOffWorkPopup, setShowOffWorkPopup] = useState(false);
-    
+    const [notificationPermission, setNotificationPermission] = useState('default');
+
     // Refs to track state without triggering re-renders for logic checks
     const restingClosedRef = useRef(false);
     const offWorkClosedRef = useRef(false);
     const prevOffWorkStateRef = useRef(false);
     const celebrationTriggeredRef = useRef({});
+    const clockOutNotificationSentRef = useRef(false);
+
+    // 請求通知權限
+    useEffect(() => {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().then(permission => {
+                setNotificationPermission(permission);
+            });
+        } else if ('Notification' in window) {
+            setNotificationPermission(Notification.permission);
+        }
+    }, []);
+
+    // 發送打卡提醒通知
+    const sendClockOutNotification = () => {
+        if ('Notification' in window && Notification.permission === 'granted') {
+            const notification = new Notification('⏰ 打卡提醒', {
+                body: '現在是下午 5:00，記得打卡下班喔！',
+                icon: '/疲憊上班族.gif',
+                tag: 'clock-out-reminder',
+                requireInteraction: true
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+        }
+    };
 
     useEffect(() => {
         const updateTick = () => {
@@ -158,7 +188,17 @@ function App() {
             }
 
 
-            // 3. Check Popups
+            // 3. Check Clock Out Notification (17:00)
+            const clockOutTime = 17 * 60; // 17:00
+            if (totalMinutes === clockOutTime && !clockOutNotificationSentRef.current) {
+                sendClockOutNotification();
+                clockOutNotificationSentRef.current = true;
+            } else if (totalMinutes !== clockOutTime) {
+                // 重置標記，以便明天可以再次發送
+                clockOutNotificationSentRef.current = false;
+            }
+
+            // 4. Check Popups
             // Resting: 12:00 - 13:30
             const startRest = 12 * 60;
             const endRest = 13 * 60 + 30;
